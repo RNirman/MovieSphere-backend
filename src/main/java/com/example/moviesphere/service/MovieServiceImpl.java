@@ -26,6 +26,15 @@ public class MovieServiceImpl implements MovieService {
     public Optional<Movie> findMovieById(Long id) {
         return movieRepository.findById(id);
     }
+
+    @Override
+    public List<Movie> searchMovies(String title) {
+        if (title != null && !title.trim().isEmpty()) {
+            return movieRepository.findByTitleContainingIgnoreCase(title);
+        }
+        return movieRepository.findAll();
+    }
+
     @Override
     public Movie saveMovie(Movie movie) {
         // Here you can add business logic (e.g., validation, logging)

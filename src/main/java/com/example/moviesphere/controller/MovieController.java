@@ -33,8 +33,9 @@ public class MovieController {
 
     // GET: List all movies
     @GetMapping
-    public List<Movie> getAllMovies() {
-        return movieService.findAllMovies();
+    public List<Movie> getAllMovies(@RequestParam(required = false) String title) {
+        // Call the new service method that handles filtering
+        return movieService.searchMovies(title);
     }
 
     @GetMapping("/{id}")

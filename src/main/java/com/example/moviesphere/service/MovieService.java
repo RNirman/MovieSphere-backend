@@ -10,5 +10,6 @@ public interface MovieService {
     Movie saveMovie(Movie movie);
     void deleteMovie(Long id);
     Movie updateMovie(Movie movie);
+    List<Movie> searchMovies(String title);
     // Add methods for integration like: Movie createMovieFromExternalApi(String imdbId);
 }
