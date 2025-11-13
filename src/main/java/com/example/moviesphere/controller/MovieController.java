@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.moviesphere.service.TmdbService;
 import com.example.moviesphere.dto.TmdbMovieDto;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Map;
@@ -44,6 +46,13 @@ public class MovieController {
                 .orElseThrow(() -> new RuntimeException("Movie not found for ID: " + id));
 
         return ResponseEntity.ok(movie);
+    }
+
+    @GetMapping("/public/search")
+    public List<TmdbMovieDto> publicSearchTmdb(@RequestParam String title) {
+        // This calls the same TmdbService as the admin panel,
+        // but the endpoint is designated as public in SecurityConfig.
+        return tmdbService.searchMoviesByTitle(title);
     }
 
     // POST: Create a new movie

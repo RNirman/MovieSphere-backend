@@ -58,6 +58,8 @@ public class SecurityConfig {
                         // PUBLIC: Allow login endpoint
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/v1/public/search").permitAll()
+
                         // PUBLIC: Allow GET requests to movies
                         .requestMatchers(HttpMethod.GET, "/api/v1/movies/**").permitAll()
 
