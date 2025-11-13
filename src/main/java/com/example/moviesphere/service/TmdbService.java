@@ -1,7 +1,6 @@
 package com.example.moviesphere.service;
 
-import com.example.moviesphere.dto.TmdbMovieDto;
-import com.example.moviesphere.dto.TmdbSearchResponse;
+import com.example.moviesphere.dto.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -38,6 +37,76 @@ public class TmdbService {
         return response != null && response.getResults() != null
                 ? response.getResults()
                 : List.of(); // Return empty list on error
+    }
+
+    public Optional<String> getDirector(Long tmdbId) {
+        // Implementation uses TmdbCreditsResponse and TmdbCrewMemberDto
+        String url = String.format("%s/credits?api_key=%s", baseUrl + "movie/" + tmdbId, apiKey);
+
+        try {
+            TmdbCreditsResponse credits = restTemplate.getForObject(url, TmdbCreditsResponse.class);
+
+            return credits.getCrew().stream()
+                    .filter(c -> "Director".equalsIgnoreCase(c.getJob()))
+                    .map(TmdbCrewMemberDto::getName)
+                    .findFirst();
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Fetches primary movie details (title, overview, poster) from TMDb by ID.
+     * This uses the standard /movie/{id} endpoint.
+     */
+    public Optional<TmdbMovieDto> getPrimaryMovieDetails(Long tmdbId) {
+        String url = String.format("%s?api_key=%s", baseUrl + "movie/" + tmdbId, apiKey);
+
+        try {
+            // TmdbMovieDto is used here to map title, overview, release_date, etc.
+            TmdbMovieDto movieDto = restTemplate.getForObject(url, TmdbMovieDto.class);
+            return Optional.ofNullable(movieDto);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // NEW ORCHESTRATION METHOD: getFullTmdbDetails
+    // ------------------------------------------------------------------
+    /**
+     * Orchestrates multiple API calls to build the full public detail view DTO.
+     * @param tmdbId The ID from TMDb.
+     * @return TmdbDetailDto containing aggregated data.
+     */
+    public Optional<TmdbDetailDto> getFullTmdbDetails(Long tmdbId) {
+        // 1. Get primary details
+        Optional<TmdbMovieDto> movieOpt = getPrimaryMovieDetails(tmdbId);
+        if (movieOpt.isEmpty()) {
+            return Optional.empty(); // Movie not found
+        }
+
+        TmdbMovieDto movie = movieOpt.get();
+
+        // 2. Get additional data (director and trailer)
+        Optional<String> director = getDirector(tmdbId);
+        Optional<String> trailerKey = getTrailerKey(tmdbId);
+
+        // 3. Aggregate data into the final DTO
+        TmdbDetailDto detail = new TmdbDetailDto();
+        detail.setTitle(movie.getTitle());
+        detail.setSynopsis(movie.getOverview());
+
+        // Extract the year from the YYYY-MM-DD date format
+        detail.setReleaseYear(movie.getReleaseDate() != null && movie.getReleaseDate().length() >= 4
+                ? movie.getReleaseDate().substring(0, 4)
+                : "N/A");
+
+        detail.setPosterUrl(movie.getFullPosterUrl());
+        detail.setDirector(director.orElse(null));
+        detail.setTrailerYoutubeId(trailerKey.orElse(null));
+
+        return Optional.of(detail);
     }
 
     /**

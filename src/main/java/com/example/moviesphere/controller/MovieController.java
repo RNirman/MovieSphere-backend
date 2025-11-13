@@ -1,5 +1,6 @@
 package com.example.moviesphere.controller;
 
+import com.example.moviesphere.dto.TmdbDetailDto;
 import com.example.moviesphere.model.Movie;
 import com.example.moviesphere.repository.MovieRepository;
 import com.example.moviesphere.service.MovieService;
@@ -11,6 +12,7 @@ import com.example.moviesphere.service.TmdbService;
 import com.example.moviesphere.dto.TmdbMovieDto;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import com.example.moviesphere.exception.ResourceNotFoundException;
 
 import java.util.List;
 import java.util.Map;
@@ -87,4 +89,12 @@ public class MovieController {
     public List<TmdbMovieDto> searchTmdb(@RequestParam String title) {
         return tmdbService.searchMoviesByTitle(title);
     }
+
+    @GetMapping("/public/tmdb/details/{id}")
+    public TmdbDetailDto getFullTmdbDetails(@PathVariable Long id) {
+        // Use the orchestration method from the service layer
+        return tmdbService.getFullTmdbDetails(id)
+                .orElseThrow(() -> new ResourceNotFoundException("TMDb details not found for ID: " + id));
+    }
+
 }

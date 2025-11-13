@@ -58,16 +58,22 @@ public class SecurityConfig {
                         // PUBLIC: Allow login endpoint
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/v1/public/search").permitAll()
+                        // CORS pre-flight
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // PUBLIC: Search endpoint (CORRECTED PATH)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/movies/public/search").permitAll()
+
+                        // PUBLIC: TMDB details endpoint (CORRECTED PATH)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/movies/public/tmdb/details/**").permitAll()
 
                         // PUBLIC: Allow GET requests to movies
                         .requestMatchers(HttpMethod.GET, "/api/v1/movies/**").permitAll()
 
-                        // CORS pre-flight
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        // ADMIN: Require ADMIN role for POST, PUT, DELETE
-                        .requestMatchers("/api/v1/movies/**").hasRole("ADMIN")
+                        // ADMIN: Require ADMIN role for POST, PUT, DELETE on movies
+                        .requestMatchers(HttpMethod.POST, "/api/v1/movies/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/movies/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/movies/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 )
