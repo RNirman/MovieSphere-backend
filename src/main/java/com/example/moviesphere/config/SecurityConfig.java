@@ -61,7 +61,9 @@ public class SecurityConfig {
                         // CORS pre-flight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // PUBLIC: Search endpoint (CORRECTED PATH)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/movies/public/popular").permitAll()
+
+                        // PUBLIC: Search endpoint
                         .requestMatchers(HttpMethod.GET, "/api/v1/movies/public/search").permitAll()
 
                         // PUBLIC: TMDB details endpoint (CORRECTED PATH)

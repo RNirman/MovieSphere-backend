@@ -138,4 +138,18 @@ public class TmdbService {
         }
         return Optional.empty();
     }
+
+    public List<TmdbMovieDto> getPopularMovies() {
+        String url = String.format(
+                "%smovie/popular?api_key=%s",
+                baseUrl,
+                apiKey
+        );
+
+        TmdbSearchResponse response = restTemplate.getForObject(url, TmdbSearchResponse.class);
+
+        return response != null && response.getResults() != null
+                ? response.getResults()
+                : List.of();
+    }
 }

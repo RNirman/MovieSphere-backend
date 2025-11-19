@@ -97,4 +97,9 @@ public class MovieController {
                 .orElseThrow(() -> new ResourceNotFoundException("TMDb details not found for ID: " + id));
     }
 
+    @GetMapping("/public/popular")
+    public List<TmdbMovieDto> getPopularMovies() {
+        return tmdbService.getPopularMovies();
+    }
+
 }
