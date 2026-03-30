@@ -25,8 +25,6 @@ import org.springframework.security.config.Customizer;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // REMOVED: @Autowired private JwtRequestFilter jwtRequestFilter;
-
     @Bean
     public UserDetailsService userDetailsService() {
         UserDetails adminUser = User.builder()

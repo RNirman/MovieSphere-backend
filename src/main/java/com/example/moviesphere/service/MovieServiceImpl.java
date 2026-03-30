@@ -37,7 +37,6 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public Movie saveMovie(Movie movie) {
-        // Here you can add business logic (e.g., validation, logging)
         return movieRepository.save(movie);
     }
 

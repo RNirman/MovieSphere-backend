@@ -19,14 +19,9 @@ public class TmdbService {
     @Value("${tmdb.api.key}")
     private String apiKey;
 
-    /**
-     * Searches TMDb for movies by title.
-     * @param title The title of the movie to search for.
-     * @return A list of TmdbMovieDto results.
-     */
     public List<TmdbMovieDto> searchMoviesByTitle(String title) {
         String url = String.format(
-                "%smovie?api_key=%s&query=%s&include_adult=false",
+                "%smovie?api_key=%s&query=%s&include_adult=true",
                 baseUrl + "search/",
                 apiKey,
                 title.replace(" ", "+") // URL encode the query
@@ -40,7 +35,6 @@ public class TmdbService {
     }
 
     public Optional<String> getDirector(Long tmdbId) {
-        // Implementation uses TmdbCreditsResponse and TmdbCrewMemberDto
         String url = String.format("%s/credits?api_key=%s", baseUrl + "movie/" + tmdbId, apiKey);
 
         try {
@@ -55,15 +49,10 @@ public class TmdbService {
         }
     }
 
-    /**
-     * Fetches primary movie details (title, overview, poster) from TMDb by ID.
-     * This uses the standard /movie/{id} endpoint.
-     */
     public Optional<TmdbMovieDto> getPrimaryMovieDetails(Long tmdbId) {
         String url = String.format("%s?api_key=%s", baseUrl + "movie/" + tmdbId, apiKey);
 
         try {
-            // TmdbMovieDto is used here to map title, overview, release_date, etc.
             TmdbMovieDto movieDto = restTemplate.getForObject(url, TmdbMovieDto.class);
             return Optional.ofNullable(movieDto);
         } catch (Exception e) {
@@ -71,14 +60,6 @@ public class TmdbService {
         }
     }
 
-    // ------------------------------------------------------------------
-    // NEW ORCHESTRATION METHOD: getFullTmdbDetails
-    // ------------------------------------------------------------------
-    /**
-     * Orchestrates multiple API calls to build the full public detail view DTO.
-     * @param tmdbId The ID from TMDb.
-     * @return TmdbDetailDto containing aggregated data.
-     */
     public Optional<TmdbDetailDto> getFullTmdbDetails(Long tmdbId) {
         // 1. Get primary details
         Optional<TmdbMovieDto> movieOpt = getPrimaryMovieDetails(tmdbId);
@@ -109,11 +90,6 @@ public class TmdbService {
         return Optional.of(detail);
     }
 
-    /**
-     * Fetches the trailer key (YouTube ID) for a specific TMDb movie ID.
-     * @param tmdbId The TMDb movie ID.
-     * @return The YouTube key as a String, or Optional.empty().
-     */
     public Optional<String> getTrailerKey(Long tmdbId) {
         String url = String.format(
                 "%s/videos?api_key=%s",
